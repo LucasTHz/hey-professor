@@ -5,10 +5,9 @@
 echo "Running phpstan"
 ./vendor/bin/phpstan analyse
 if [ $? -ne 0 ]; then
-    echo "Deu erro no phpstan"
+    echo "Deu erro no phpstan. Corriga e tente novamente."
     exit 1;
 fi
-
 
 # fomart each file changed with laravel pint
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep ".php\{0,1\}$") || true
@@ -19,5 +18,14 @@ do
     ./vendor/bin/pint "${FILE}";
     git add "${FILE}";
 done;
+
+# running pest
+echo "Running Pest"
+php artisan test --parallel
+if [ $? -ne 0 ]; then
+    echo "Deu erro nos testes. Corriga e tente novamente."
+    exit 1;
+fi
+
 
 exit 0;
